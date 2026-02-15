@@ -53,19 +53,24 @@ if defined last (
    set days=-1
 )
 
-set qual=backup
 set type=incremental
 if %days% geq %full_days% set type=full
 if %days% equ -1 set type=full
 if %type% equ full (
-   set qual=activefull
    if %wired% equ false (
       if %days% equ -1 (
          call %utils%\message "No previous full backup"
       ) else (
          call %utils%\message "Last full backup was %days% days ago"
+         set type=incremental
       )
    )
+)
+
+if %type% equ full (
+   set qual=activefull
+) else (
+   set qual=backup
 )
 
 call %utils%\message "Performing %type% backup"
@@ -109,3 +114,4 @@ goto exit
 call %utils%\message "Finished with status %status%"
 :exit
 exit /b %status%
+
