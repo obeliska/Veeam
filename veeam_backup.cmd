@@ -23,6 +23,7 @@ if "%1" == "debug" (
 
 @echo ----------------------------------------------------------------------
 
+:: Check that script is being run as admin.
 bcdedit > nul
 if errorlevel 1 goto not_admin
 
@@ -39,10 +40,10 @@ for /f "tokens=* eol=#" %%a in (%config%) do call set %%a
 if not exist "%location%" goto bad_location
 call %utils%\message "Starting backup on %host%"
 
-:: Check for wired network.
-set wired=false
+:: Check for wired interface.
+set network=wireless
 netsh interface show interface | findstr /r "Connected.*%wired_interface%" >nul
-if %errorlevel% equ 0 set wired=true
+if %errorlevel% equ 0 set network=wired
 
 :: Get date of last full backup and its age in days.
 set last=
@@ -56,8 +57,8 @@ if defined last (
 set type=incremental
 if %days% geq %full_days% set type=full
 if %days% equ -1 set type=full
-if %type% equ full (
-   if %wired% equ false (
+if "%type%" equ "full" (
+   if /i "%network%" neq "wired" (
       if %days% equ -1 (
          call %utils%\message "No previous full backup"
       ) else (
@@ -67,13 +68,13 @@ if %type% equ full (
    )
 )
 
-if %type% equ full (
+if "%type%" equ "full" (
    set qual=activefull
 ) else (
    set qual=backup
 )
 
-call %utils%\message "Performing %type% backup"
+call %utils%\message "Performing %type% backup over %network% interface"
 %rem%%program% /%qual%
 set status=%errorlevel%
 goto end
@@ -114,4 +115,3 @@ goto exit
 call %utils%\message "Finished with status %status%"
 :exit
 exit /b %status%
-
