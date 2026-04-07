@@ -3,7 +3,11 @@
 @prompt $s
 
 ::
-:: Set the Veaam logging levels.
+:: Set the Veeam logging levels.
+::
+:: After installation or update, the logging levels default to 4 which produces
+:: a significant amount of data in the logs. Level 1 is usually sufficient for
+:: normal operation.
 ::
 
 set key="HKLM\SOFTWARE\Veeam\Veeam Endpoint Backup"
